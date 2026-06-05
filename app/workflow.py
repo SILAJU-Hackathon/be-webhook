@@ -42,10 +42,9 @@ async def run_webhook_workflow(
 
     pipeline_response = await pipeline_client.process_url(
         PipelineRequest(
-            id=parsed.id,
-            longitude=parsed.longitude,
-            latitude=parsed.latitude,
-            before_img_url=parsed.before_img_url,
+            lan=parsed.latitude,
+            lon=parsed.longitude,
+            img_location=parsed.before_img_url,
         )
     )
 

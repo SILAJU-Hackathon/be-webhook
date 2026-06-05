@@ -15,7 +15,7 @@ Flow yang dipertahankan:
 1. Terima Cloudinary webhook di `POST /cloudinary-trigger`.
 2. Parse `body.context.custom` menjadi `id`, `latitude`, `longitude`, `description`, dan `before_img_url`.
 3. Jalankan loop protection: kalau `Id` kosong, tidak meneruskan proses.
-4. Kirim payload ke BE AI Pipeline `POST /process-url`.
+4. Kirim payload ke BE AI Pipeline `POST /process`.
 5. Update Supabase tabel `reports` dengan `destruct_class`, `location_score`, `total_score`, dan `status=complete`.
 
 ## Setup
@@ -64,7 +64,7 @@ Tambahkan juga environment variable aplikasi di Hugging Face Space settings:
 APP_NAME=gungfi-webhook-be
 LOG_LEVEL=INFO
 WEBHOOK_PATH=/cloudinary-trigger
-AI_PIPELINE_URL=http://be-aipipeline-jeki.indonesiacentral.azurecontainer.io:8000
+AI_PIPELINE_URL=https://be-aipipeline.bluecoast-4238dc8b.eastasia.azurecontainerapps.io
 AI_PIPELINE_TIMEOUT_SECONDS=60
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=replace-me

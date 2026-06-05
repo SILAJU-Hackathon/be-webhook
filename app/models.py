@@ -12,10 +12,9 @@ class ParsedWebhookData(BaseModel):
 
 
 class PipelineRequest(BaseModel):
-    id: str
-    longitude: float | None = None
-    latitude: float | None = None
-    before_img_url: str
+    lan: float
+    lon: float
+    img_location: str
 
 
 class PipelineClassification(BaseModel):

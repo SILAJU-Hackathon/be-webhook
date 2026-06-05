@@ -15,7 +15,7 @@ class PipelineClient:
     async def process_url(self, payload: PipelineRequest) -> PipelineResponse:
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             try:
-                response = await client.post(f"{self._base_url}/process-url", json=payload.model_dump())
+                response = await client.post(f"{self._base_url}/process", json=payload.model_dump())
                 response.raise_for_status()
             except httpx.HTTPError as exc:
                 raise HTTPException(
