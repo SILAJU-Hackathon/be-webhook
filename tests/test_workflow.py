@@ -131,7 +131,7 @@ def test_webhook_workflow_sends_process_payload() -> None:
 
 
 @respx.mock
-def test_pipeline_client_posts_to_process_endpoint() -> None:
+def test_pipeline_client_downloads_image_and_posts_multipart_to_process() -> None:
     settings = Settings(
         app_name="gungfi-webhook-be",
         log_level="INFO",
@@ -145,8 +145,20 @@ def test_pipeline_client_posts_to_process_endpoint() -> None:
         supabase_service_role_key="service-role",
         supabase_table="reports",
     )
-    route = respx.post("https://pipeline.example.com/process").mock(
-        return_value=httpx.Response(
+    image_route = respx.get("https://res.cloudinary.com/demo/image/upload/sample.jpg").mock(
+        return_value=httpx.Response(200, content=b"fake-image-bytes", headers={"content-type": "image/jpeg"})
+    )
+
+    def handle_process_request(request: httpx.Request) -> httpx.Response:
+        body = request.content
+        assert "multipart/form-data" in request.headers["content-type"]
+        assert b'name="lan"' in body
+        assert b"-6.2" in body
+        assert b'name="lon"' in body
+        assert b"106.8" in body
+        assert b'name="image"; filename="sample.jpg"' in body
+        assert b"fake-image-bytes" in body
+        return httpx.Response(
             200,
             json={
                 "classification": {"condition": "rusak", "confidence": 0.9, "probabilities": {}},
@@ -154,6 +166,9 @@ def test_pipeline_client_posts_to_process_endpoint() -> None:
                 "max_impact": 0.9,
             },
         )
+
+    route = respx.post("https://pipeline.example.com/process").mock(
+        side_effect=handle_process_request,
     )
 
     import anyio
@@ -167,4 +182,5 @@ def test_pipeline_client_posts_to_process_endpoint() -> None:
         ),
     )
 
+    assert image_route.called
     assert route.called

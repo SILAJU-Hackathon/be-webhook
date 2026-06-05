@@ -15,7 +15,7 @@ Flow yang dipertahankan:
 1. Terima Cloudinary webhook di `POST /cloudinary-trigger`.
 2. Parse `body.context.custom` menjadi `id`, `latitude`, `longitude`, `description`, dan `before_img_url`.
 3. Jalankan loop protection: kalau `Id` kosong, tidak meneruskan proses.
-4. Kirim payload ke BE AI Pipeline `POST /process`.
+4. Download image dari Cloudinary, lalu kirim multipart form-data ke BE AI Pipeline `POST /process`.
 5. Update Supabase tabel `reports` dengan `destruct_class`, `location_score`, `total_score`, dan `status=complete`.
 
 ## Setup
