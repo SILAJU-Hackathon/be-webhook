@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 def main() -> int:
     load_dotenv()
 
-    image_path = Path(os.getenv("CLOUDINARY_TEST_IMAGE", "img/DSC06041.JPG"))
+    image_path = Path(os.getenv("CLOUDINARY_TEST_IMAGE", "img/DSC06041.jpg"))
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
     api_key = os.getenv("CLOUDINARY_API_KEY")
     api_secret = os.getenv("CLOUDINARY_API_SECRET")
