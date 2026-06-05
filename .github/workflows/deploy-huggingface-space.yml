@@ -57,6 +57,22 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          rm -rf hf-space
+          mkdir hf-space
+          git archive --format=tar HEAD | tar -x -C hf-space
+
+          oversized_files="$(find hf-space -type f -size +10M -print)"
+          if [ -n "$oversized_files" ]; then
+            echo "Hugging Face rejects regular Git files larger than 10 MiB."
+            echo "$oversized_files"
+            exit 1
+          fi
+
+          cd hf-space
+          git init -b main
+          git add -A
+          git commit -m "Deploy GitHub snapshot to Hugging Face Space"
           git remote add huggingface "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${SPACE_ID}"
 
           for attempt in 1 2 3 4 5; do
