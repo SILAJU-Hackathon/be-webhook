@@ -15,8 +15,6 @@ def main() -> int:
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
     api_key = os.getenv("CLOUDINARY_API_KEY")
     api_secret = os.getenv("CLOUDINARY_API_SECRET")
-    notification_url = os.getenv("WEBHOOK_PUBLIC_URL")
-
     missing = [
         name
         for name, value in {
@@ -40,8 +38,6 @@ def main() -> int:
         "context": "Id=test-fastapi-webhook|latitude=-6.200000|longitude=106.816666|description=fastapi webhook smoke test",
         "timestamp": timestamp,
     }
-    if notification_url:
-        params["notification_url"] = notification_url
 
     params["signature"] = sign_upload_params(params, api_secret)
 
@@ -59,7 +55,6 @@ def main() -> int:
     print("Upload OK")
     print(f"public_id: {data.get('public_id')}")
     print(f"secure_url: {data.get('secure_url')}")
-    print(f"notification_url: {notification_url or '(not set)'}")
     return 0
 
 

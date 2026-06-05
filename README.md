@@ -40,6 +40,8 @@ Cloudinary notification URL:
 https://your-domain/cloudinary-trigger
 ```
 
+Set URL tersebut sebagai global webhook Notification URL di Cloudinary Console, atau di upload preset yang dipakai aplikasi. Dengan begitu aplikasi upload tidak perlu mengirim parameter `notification_url` pada setiap request.
+
 ## Test
 
 ```powershell
@@ -97,10 +99,4 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ngrok http 8000
 ```
 
-Setelah dapat URL HTTPS dari tunnel, isi:
-
-```text
-WEBHOOK_PUBLIC_URL=https://your-tunnel-url/cloudinary-trigger
-```
-
-Lalu jalankan lagi script upload Cloudinary.
+Setelah dapat URL HTTPS dari tunnel, set global webhook Notification URL atau upload preset Notification URL di Cloudinary ke `https://your-tunnel-url/cloudinary-trigger`, lalu jalankan lagi script upload Cloudinary.
