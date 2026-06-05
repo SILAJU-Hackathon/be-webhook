@@ -1,0 +1,236 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cloudinary-trigger",
+        "options": {}
+      },
+      "name": "Cloudinary Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        3344,
+        992
+      ],
+      "id": "ca173e05-e036-48be-99ae-42ce18e457ed",
+      "webhookId": "e6dc3997-4c85-42fc-adde-396c60a64029"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const body = $input.item.json.body || {};\nconst context = body.context || {};\nconst custom = context.custom || {};\n\nreturn {\n  json: {\n    id: custom.Id || null,\n    latitude: custom.latitude || null,\n    longitude: custom.longitude || null,\n    description: custom.description || \"\",\n    before_img_url: body.secure_url || \"\"\n  }\n};"
+      },
+      "name": "Parse Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        992
+      ],
+      "id": "d9621bf8-aa4f-434c-992f-f2d0088a250d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{!!$node[\"Parse Data\"].json.id}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Loop Protection",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3792,
+        992
+      ],
+      "id": "fc38d8a7-421b-4239-8382-e7afa0feead2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://be-aipipeline-jeki.indonesiacentral.azurecontainer.io:8000/process-url",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"id\": \"{{$node[\"Parse Data\"].json.id}}\",\n  \"longitude\": {{$node[\"Parse Data\"].json.longitude}},\n  \"latitude\": {{$node[\"Parse Data\"].json.latitude}},\n  \"before_img_url\": \"{{$node[\"Parse Data\"].json.before_img_url}}\"\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "name": "Trigger BE-AIPipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        4016,
+        992
+      ],
+      "id": "8cef1520-4c71-44f4-96f9-8f1180a0ffa0",
+      "notes": "BE akan download image, process AI, UPDATE Supabase, lalu hapus temp file"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "id",
+              "value": "={{ $('Parse Data').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "destruct_class",
+              "value": "={{ $('Trigger BE-AIPipeline').item.json.classification.condition }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "location_score",
+              "value": "={{ $('Trigger BE-AIPipeline').item.json.priority_score }}",
+              "type": "number"
+            },
+            {
+              "id": "id-4",
+              "name": "total_score",
+              "value": "={{ $('Trigger BE-AIPipeline').item.json.max_impact }}",
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "status",
+              "value": "complete",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "5a218d30-f6f2-45ca-942f-c73d80e4b3f3",
+      "name": "Prepare Supabase Update Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4240,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "reports",
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Prepare Supabase Update Data').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "destruct_class",
+              "fieldValue": "={{ $('Prepare Supabase Update Data').item.json.destruct_class }}"
+            },
+            {
+              "fieldId": "location_score",
+              "fieldValue": "={{ $('Prepare Supabase Update Data').item.json.location_score }}"
+            },
+            {
+              "fieldId": "total_score",
+              "fieldValue": "={{ $('Prepare Supabase Update Data').item.json.total_score }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $('Prepare Supabase Update Data').item.json.status }}"
+            }
+          ]
+        }
+      },
+      "id": "49aeac17-9849-47ba-ba57-93173b6fdbf2",
+      "name": "Update Supabase Record",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4464,
+        992
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Ce7gSa8qnBBCcA3y",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cloudinary Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Protection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Protection": {
+      "main": [
+        [
+          {
+            "node": "Trigger BE-AIPipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger BE-AIPipeline": {
+      "main": [
+        [
+          {
+            "node": "Prepare Supabase Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Supabase Update Data": {
+      "main": [
+        [
+          {
+            "node": "Update Supabase Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f32ea910-f847-438f-aee1-657680d0cf9e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ec50aa1d8c0e15b703de4ec09bc4ae99ba1d29b466ee546490a9882118ec4069"
+  },
+  "id": "BFLADivi1dvw4GiMd9fuK",
+  "tags": []
+}
