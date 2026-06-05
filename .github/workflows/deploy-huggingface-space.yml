@@ -32,6 +32,18 @@ jobs:
         run: uv sync --frozen
 
       - name: Run tests
+        env:
+          APP_NAME: gungfi-webhook-be
+          LOG_LEVEL: INFO
+          WEBHOOK_PATH: /cloudinary-trigger
+          AI_PIPELINE_URL: http://be-aipipeline-jeki.indonesiacentral.azurecontainer.io:8000
+          AI_PIPELINE_TIMEOUT_SECONDS: 60
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+          SUPABASE_TABLE: reports
+          CLOUDINARY_API_SECRET: test-cloudinary-secret
+          CLOUDINARY_SIGNATURE_REQUIRED: true
+          CLOUDINARY_SIGNATURE_TOLERANCE_SECONDS: 7200
         run: uv run pytest
 
       - name: Deploy to Hugging Face Space
