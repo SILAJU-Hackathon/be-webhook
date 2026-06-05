@@ -55,9 +55,6 @@ jobs:
             exit 1
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           rm -rf hf-space
           mkdir hf-space
           git archive --format=tar HEAD | tar -x -C hf-space
@@ -71,6 +68,8 @@ jobs:
 
           cd hf-space
           git init -b main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Deploy GitHub snapshot to Hugging Face Space"
           git remote add huggingface "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${SPACE_ID}"
